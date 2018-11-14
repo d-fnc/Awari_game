@@ -6,7 +6,7 @@ namespace Awari_game
 {
     public class Hole
     {
-        private int Marbles { get; set; }
+        public int Marbles { get; set; }
 
         public Hole()
         {

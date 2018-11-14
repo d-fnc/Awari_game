@@ -7,7 +7,7 @@ namespace Awari_game
     class Player
     {
         public Hole[] Holes { get; }
-        private string Name { get; set; }
+        public string Name { get; set; }
 
         public Player()
         {
@@ -19,6 +19,10 @@ namespace Awari_game
         {
             Name = name;
             Holes = new Hole[6];
+            for(int i=0; i< 6; i++)
+            {
+                Holes[i] = new Hole();
+            }
         }
 
     }
