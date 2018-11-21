@@ -8,11 +8,17 @@ namespace Awari_game
     {
         public Hole[] Holes { get; }
         public string Name { get; set; }
+        public int Points { get; set; }
 
         public Player()
         {
             Name = "a Játékos";
             Holes = new Hole[6];
+            for (int i = 0; i < 6; i++)
+            {
+                Holes[i] = new Hole();
+            }
+            Points = 0;
         }
 
         public Player(string name)
@@ -23,6 +29,12 @@ namespace Awari_game
             {
                 Holes[i] = new Hole();
             }
+            Points = 0;
+        }
+
+        public override string ToString()
+        {
+            return Name + " : " + Points;
         }
 
     }
