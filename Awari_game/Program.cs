@@ -9,17 +9,16 @@ namespace Awari_game
         {
             
             Console.SetWindowSize(100, 43);
-            //Console.WriteLine(Console.LargestWindowWidth+"  "+Console.LargestWindowHeight);
             Console.WriteLine("Szia, üdvözöllek az Awari játékban! A kezdéshez add meg a neved(opcionális)!");
             string name = Console.ReadLine();
             Player human = name == ""?new Player():new Player(name);
             Player cpu = new Player("HAL9000");
 
-            for(int i = 0; i < 6; i++)
-            {
-                cpu.Holes[i].Marbles = 0;
-            }
-
+            //for(int i = 0; i < 6; i++)
+            //{
+            //    human.Holes[i].Marbles = 2;
+            //}
+            
             bool next = CoinToss();
             bool gameEnd = false;
 
@@ -29,9 +28,12 @@ namespace Awari_game
                 PrintCurrentState(human, cpu);
                 if (next)
                 {
+                    Console.WriteLine(human.Name + " jön!");
                     PlayerInput(human, cpu, ref gameEnd, ref next);
                 } else
                 {
+                    Console.WriteLine("A gép jön!");
+                    Console.ReadLine();
                     CompInput(cpu, human);
                 }
                 gameEnd = CheckIfEndGame(ref gameEnd);
@@ -93,6 +95,32 @@ namespace Awari_game
                     maxIndex = i;
                 }
             }
+            if(wouldYieldMax == 0)
+            {
+                int i = 0;
+                int maxM = 0;
+                int maxInd = 0;
+                for(i = 0; i < cpu.Holes.Length; i++)
+                {
+                    Hole hole = cpu.Holes[i];
+                    if(maxM < hole.Marbles)
+                    {
+                        maxM = hole.Marbles;
+                        maxInd = i;
+                    }
+                }
+                if (maxM == 0)
+                {
+                    Console.WriteLine("A gép nem tud lépni! Nyertél!");
+                } else
+                {
+                    ConcludeStep(cpu, human, maxInd + 1);
+                }
+            }
+            else
+            {
+                ConcludeStep(cpu, human, maxIndex + 1);
+            }
         }
 
         static void PlayerInput(Player human, Player cpu, ref bool gameEnd, ref bool next)
@@ -105,52 +133,17 @@ namespace Awari_game
             }
             else
             {
-                int parsedInput = int.Parse(input);
-                while (!(parsedInput > 0 && parsedInput < 7))
+                int parsedInput = 0;
+                while (parsedInput == 0)
                 {
-                    Console.WriteLine("Rossz input! 1 és 6 között adj meg számot!");
-                    parsedInput = int.Parse(Console.ReadLine());
-                }
-                ConcludeStep(human, cpu, parsedInput);
-                //move code below tp concludestep
-                int originalHoleNumber = parsedInput - 1;
-                int holeNumber = originalHoleNumber;
-                Hole selectedHole = human.Holes[holeNumber];
-                bool playerSide = true;
-                int marbles = selectedHole.Marbles;
-                selectedHole.Marbles = 0;
-                holeNumber++;
-                while (marbles!=0)
-                {
-                    if (holeNumber == 6)
+                    if (Int32.TryParse(input, out parsedInput) && (parsedInput > 0 && parsedInput < 7))
                     {
-                        playerSide = !playerSide;
-                        holeNumber = 0;
-                    }
-                    if (playerSide)
-                    {
-                        if(holeNumber != originalHoleNumber)
-                        {
-                            human.Holes[holeNumber].AddMarble();
-                            marbles -= 1;
-                        }
+                        ConcludeStep(human, cpu, parsedInput);
                     }
                     else
                     {
-                        cpu.Holes[holeNumber].AddMarble();
-                        marbles -= 1;
-                    }
-                    holeNumber++;
-                }
-                while(!playerSide && (cpu.Holes[holeNumber].Marbles == 2 ||  cpu.Holes[holeNumber].Marbles == 3))
-                {
-                    human.Points += cpu.Holes[holeNumber].Marbles;
-                    cpu.Holes[holeNumber].Marbles = 0;
-                    if (holeNumber > 0)
-                    {
-                        holeNumber -= 1; 
-                    } else {
-                        playerSide = !playerSide;
+                        Console.WriteLine("Rossz input! 1 és 6 között adj meg számot!");
+                        input = Console.ReadLine();
                     }
                 }
             }
@@ -158,7 +151,48 @@ namespace Awari_game
 
         static void ConcludeStep(Player current, Player enemy, int input)
         {
-
+            int originalHoleNumber = input - 1;
+            int holeNumber = originalHoleNumber;
+            Hole selectedHole = current.Holes[holeNumber];
+            bool playerSide = true;
+            int marbles = selectedHole.Marbles;
+            selectedHole.Marbles = 0;
+            holeNumber++;
+            while (marbles != 0)
+            {
+                if (holeNumber == 6)
+                {
+                    playerSide = !playerSide;
+                    holeNumber = 0;
+                }
+                if (playerSide)
+                {
+                    if (holeNumber != originalHoleNumber)
+                    {
+                        current.Holes[holeNumber].AddMarble();
+                        marbles -= 1;
+                    }
+                }
+                else
+                {
+                    enemy.Holes[holeNumber].AddMarble();
+                    marbles -= 1;
+                }
+                if(marbles>0) holeNumber++;
+            }
+            while (!playerSide && (enemy.Holes[holeNumber].Marbles == 2 || enemy.Holes[holeNumber].Marbles == 3))
+            {
+                current.Points += enemy.Holes[holeNumber].Marbles;
+                enemy.Holes[holeNumber].Marbles = 0;
+                if (holeNumber > 0)
+                {
+                    holeNumber -= 1;
+                }
+                else
+                {
+                    playerSide = !playerSide;
+                }
+            }
         }
 
         static void PrintCurrentState(Player human, Player cpu)
