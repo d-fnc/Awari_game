@@ -19,6 +19,8 @@ namespace Awari_game
             //{
             //    human.Holes[i].Marbles = 2;
             //}
+            // Add 0 hole choosing detection
+            // Add skip method when you can't choose(for cpu and human too)
             
             bool next = CoinToss();
             bool gameEnd = false;
