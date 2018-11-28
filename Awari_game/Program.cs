@@ -8,8 +8,9 @@ namespace Awari_game
         static void Main(string[] args)
         {
             
-            Console.SetWindowSize(100, 43);
-            Console.WriteLine("Szia, üdvözöllek az Awari játékban! A kezdéshez add meg a neved(opcionális)!");
+            Console.SetWindowSize(50, 45);
+            Console.WriteLine("Szia, üdvözöllek az Awari játékban!");
+            Console.WriteLine("A kezdéshez add meg a neved(opcionális)!");
             string name = Console.ReadLine();
             Player human = name == ""?new Player():new Player(name);
             Player cpu = new Player("HAL9000");
@@ -36,18 +37,20 @@ namespace Awari_game
                     Console.ReadLine();
                     CompInput(cpu, human);
                 }
-                gameEnd = CheckIfEndGame(ref gameEnd);
+                gameEnd = CheckIfEndGame(ref gameEnd, cpu, human);
                 Console.Clear();
             }
 
-            Console.WriteLine("GAME OVER");
-            Console.WriteLine(next?"A gép nyert sajnos":"Gratulálok "+human.Name);
-            Console.ReadLine();
+            PrintGameEnd(next, human, cpu);
 
         }
 
-        static bool CheckIfEndGame(ref bool endGame)
+        static bool CheckIfEndGame(ref bool endGame, Player cpu, Player human)
         {
+            if(cpu.Points >= 25 || human.Points >=25 || (cpu.Points==24 && human.Points == 24))
+            {
+                return true;
+            }
             return endGame;
         }
 
@@ -197,9 +200,9 @@ namespace Awari_game
 
         static void PrintCurrentState(Player human, Player cpu)
         {
-            //Console.Write(Enumerable.Repeat("----------", 10));
             Console.Write(Environment.NewLine);
-            
+            Console.Write(Environment.NewLine);
+
             for (int i = 0; i < 6; i++)
             {
                 int humanMarbles = human.Holes[i].Marbles;
@@ -215,14 +218,40 @@ namespace Awari_game
                 Console.WriteLine();
             }
             
-            //Console.Write(Enumerable.Repeat("----------", 10));
             Console.Write(Environment.NewLine);
+            Console.Write(Environment.NewLine);
+
             Console.WriteLine(human.ToString() + " - " + cpu.ToString());
+        }
+
+        static void PrintGameEnd(bool next, Player human, Player cpu)
+        {
+            Console.WriteLine("         Pontok: " + cpu.Name + " : " + cpu.Points + " - " + human.Name + " : " + human.Points);
+
+            Console.Write("" +
+            "         _______ _______ _______ _______         " + Environment.NewLine +
+            "        (_______|_______|_______|_______)        " + Environment.NewLine +
+            "         _   ___ _______ _  _  _ _____           " + Environment.NewLine +
+            "        | | (_  |  ___  | ||_|| |  ___)          " + Environment.NewLine +
+            "        | |___) | |   | | |   | | |_____         " + Environment.NewLine +
+            "         \\_____/|_|   |_|_|   |_|_______)        " + Environment.NewLine +
+            "         _______ _     _ _______ ______          " + Environment.NewLine +
+            "                                                 " + Environment.NewLine +
+            "        (_______|_)   (_|_______|_____ \\         " + Environment.NewLine +
+            "         _     _ _     _ _____   _____) )        " + Environment.NewLine +
+            "        | |   | | |   | |  ___) |  __  /         " + Environment.NewLine +
+            "        | |___| |\\ \\ / /| |_____| |  \\ \\         " + Environment.NewLine +
+            "         \\_____/  \\___/ |_______)_|   |_|        " + Environment.NewLine +
+            "                                                 ");
+            Console.WriteLine();
+            Console.WriteLine(!next ? "         A gép nyert sajnos" : "         Gratulálok " + human.Name + "!");
+            Console.ReadLine();
         }
 
         static bool CoinToss()
         {
-            bool start = true;
+            Random rand = new Random();
+            bool start = rand.Next(0, 11)%2 ==0;
 
             return start;
         }
