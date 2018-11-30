@@ -8,19 +8,17 @@ namespace Awari_game
         static void Main(string[] args)
         {
             
-            Console.SetWindowSize(50, 45);
+            Console.SetWindowSize(60, 45);
             Console.WriteLine("Szia, üdvözöllek az Awari játékban!");
+            Console.WriteLine("A játékban felváltva jön a játékos, és a gép.");
+            Console.WriteLine("A játékosé a bal oldal, a gépé a jobb.");
+            Console.WriteLine("A játéknak akkor van vége, ha valamely játékos eléri a 24 pontot!");
+            Console.WriteLine("Jó Szórakozást!");
+
             Console.WriteLine("A kezdéshez add meg a neved(opcionális)!");
             string name = Console.ReadLine();
             Player human = name == ""?new Player():new Player(name);
             Player cpu = new Player("HAL9000");
-
-            //for(int i = 0; i < 6; i++)
-            //{
-            //    human.Holes[i].Marbles = 2;
-            //}
-            // Add 0 hole choosing detection
-            // Add skip method when you can't choose(for cpu and human too)
             
             bool next = CoinToss();
             bool gameEnd = false;
@@ -49,7 +47,8 @@ namespace Awari_game
 
         static bool CheckIfEndGame(ref bool endGame, Player cpu, Player human)
         {
-            if(cpu.Points >= 25 || human.Points >=25 || (cpu.Points==24 && human.Points == 24))
+            // A specifikációban 25 pont volt megjelölve mint a játék vége, de akkor kialakulhat 24-23 as állás, úgy hogy az utolsó mag játékban marad: soha nincs vége. Így kevésbé valószínű, hogy ez vagy hasonló szituáció kialakulhat.
+            if(cpu.Points >= 24 || human.Points >=24 || (cpu.Points==23 && human.Points == 23))
             {
                 return true;
             }
@@ -130,6 +129,18 @@ namespace Awari_game
 
         static void PlayerInput(Player human, Player cpu, ref bool gameEnd, ref bool next)
         {
+            bool canMakeValidMove = false;
+            int i = 0;
+            while(!canMakeValidMove && i<6)
+            {
+                if (human.Holes[i].Marbles > 0) { canMakeValidMove = true; } else { i++; }
+            }
+            if (!canMakeValidMove)
+            {
+                Console.WriteLine(human.Name + " nem tud lépni!");
+                Console.ReadLine();
+                return;
+            }
             string input = Console.ReadLine();
             if (input == "f")
             {
@@ -139,11 +150,21 @@ namespace Awari_game
             else
             {
                 int parsedInput = 0;
-                while (parsedInput == 0)
+                bool validStep = false;
+                while (parsedInput == 0 || !validStep)
                 {
                     if (Int32.TryParse(input, out parsedInput) && (parsedInput > 0 && parsedInput < 7))
                     {
-                        ConcludeStep(human, cpu, parsedInput);
+                        if (human.Holes[parsedInput - 1].Marbles == 0)
+                        {
+                            Console.WriteLine("Sajnos ebben a lyukban nincs egy golyó sem! válassz másikat!");
+                            input = Console.ReadLine();
+                        }
+                        else
+                        {
+                            validStep = true;
+                            ConcludeStep(human, cpu, parsedInput);
+                        }
                     }
                     else
                     {
@@ -209,7 +230,7 @@ namespace Awari_game
             {
                 int humanMarbles = human.Holes[i].Marbles;
                 int cpuMarbles = cpu.Holes[i].Marbles;
-
+                
                 Console.WriteLine(" "+(i+1)+"  "+"  .-''-.    |     .-''-.    ");
                 Console.WriteLine("    " + " /      \\   |    /      \\   ");
 
@@ -246,8 +267,15 @@ namespace Awari_game
             "         \\_____/  \\___/ |_______)_|   |_|        " + Environment.NewLine +
             "                                                 ");
             Console.WriteLine();
-            Console.WriteLine(!next ? "         A gép nyert sajnos" : "         Gratulálok " + human.Name + "!");
-            Console.ReadLine();
+            if(human.Points == cpu.Points)
+            {
+                Console.WriteLine("         Döntetlen lett a játék vége!");
+                Console.ReadLine();
+            } else
+            {
+                Console.WriteLine(!next ? "         A gép nyert sajnos" : "         Gratulálok " + human.Name + "!");
+                Console.ReadLine();
+            }
         }
 
         static bool CoinToss()
