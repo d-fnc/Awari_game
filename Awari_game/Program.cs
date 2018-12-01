@@ -20,9 +20,11 @@ namespace Awari_game
             Player human = name == ""?new Player():new Player(name);
             Player cpu = new Player("HAL9000");
             
+            //A játékot véletlenszerűen kezdjük el. 
             bool next = CoinToss();
             bool gameEnd = false;
 
+            //Addig jönnek felváltva a játékosok amíg nem érjük el a játék végét. (nem teljesül a játék vége kritérium)
             while(!gameEnd)
             {
                 next = !next;
@@ -55,6 +57,7 @@ namespace Awari_game
             return endGame;
         }
 
+        //A gép által használt metódus, hogy eldöntse melyik lépés által szerezné a legtöbb pontot.
         static int CheckWhatItWouldYield(Player cpu, Player human, int holeNumber)
         {
             int gainedPoints = 0;
@@ -88,6 +91,7 @@ namespace Awari_game
 
         static void CompInput(Player cpu, Player human)
         {
+            //Megnézzük melyik lépés által szerezné a legtöbb pontot a gép, majd meglépjük.
             int maxIndex = 0;
             int wouldYieldMax = CheckWhatItWouldYield(cpu, human, 0);
             for(int i = 1; i< 6; i++)
@@ -99,6 +103,7 @@ namespace Awari_game
                     maxIndex = i;
                 }
             }
+            //Ha a gép nem tud pontot szerezni akkor azt a házat választja, ahol a legtöbb a mag(így érdekesebb a játék; ha az első nem nulla házat választaná, nagyon unalmas lenne)
             if(wouldYieldMax == 0)
             {
                 int i = 0;
@@ -113,9 +118,10 @@ namespace Awari_game
                         maxInd = i;
                     }
                 }
+                //Ha nincs valid lépése, passzol
                 if (maxM == 0)
                 {
-                    Console.WriteLine("A gép nem tud lépni! Nyertél!");
+                    Console.WriteLine("A gép nem tud lépni!");
                 } else
                 {
                     ConcludeStep(cpu, human, maxInd + 1);
@@ -127,8 +133,10 @@ namespace Awari_game
             }
         }
 
+        //A játékos lépését feldolgozó metódus
         static void PlayerInput(Player human, Player cpu, ref bool gameEnd, ref bool next)
         {
+            //Megnézzük, hogy a játékos tud-e lépni. Ha nem, akkor passzol automatikusan
             bool canMakeValidMove = false;
             int i = 0;
             while(!canMakeValidMove && i<6)
@@ -142,6 +150,7 @@ namespace Awari_game
                 return;
             }
             string input = Console.ReadLine();
+            //Cheatcode, hogy a játékos egyből nyerjen
             if (input == "f")
             {
                 gameEnd = true;
@@ -175,6 +184,7 @@ namespace Awari_game
             }
         }
 
+        //Az adott lépést feldolgozó metódus.
         static void ConcludeStep(Player current, Player enemy, int input)
         {
             int originalHoleNumber = input - 1;
@@ -221,6 +231,7 @@ namespace Awari_game
             }
         }
 
+        //A játéktáblát megjelenítő metódus
         static void PrintCurrentState(Player human, Player cpu)
         {
             Console.Write(Environment.NewLine);
@@ -247,6 +258,7 @@ namespace Awari_game
             Console.WriteLine(human.ToString() + " - " + cpu.ToString());
         }
 
+        //A játék végét kiíró metódus
         static void PrintGameEnd(bool next, Player human, Player cpu)
         {
             Console.WriteLine("         Pontok: " + cpu.Name + " : " + cpu.Points + " - " + human.Name + " : " + human.Points);
